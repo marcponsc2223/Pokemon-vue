@@ -9,7 +9,9 @@
       <div v-if="!fav ||favPokemons.length <= 0" class="cards">
         <div v-for="pokemon in pokemons" :key="pokemon.name" :class="getPokemonClasses(pokemon)" style="width: 18rem;">
           <h5 class="card-title">Id: {{ pokemon.id }}</h5>
-          <div :class="{ 'favIcon': !checkForFavs(pokemon), 'favIcon favIconCheck': checkForFavs(pokemon) }" @click="addToFav(pokemon)"></div>
+          <div :class="{ 'favIcon icons': !checkForFavs(pokemon), 'favIcon favIconCheck icons': checkForFavs(pokemon) }" @click="addToFav(pokemon)"> <img class="images" src="../assets/lockIcon.png" alt="" srcset=""> </div>
+          <div class="icons addTeamIcon" @click="addToTeam(pokemon)"></div>
+          <!-- <p>Add to team 1</p> -->
           <img class="card-img-top" :src="pokemon.sprites.front_default" alt="Card image cap">
           <div class="card-body">
             <h5 class="card-title">{{ pokemon.name }}</h5>
@@ -20,7 +22,6 @@
       <div v-else class="cards">
         <div v-for="pokemon in this.favPokemons" :key="pokemon.name" :class="getPokemonClasses(pokemon)" style="width: 18rem;">
           <h5 class="card-title">Id: {{ pokemon.id }}</h5>
-          <div :class="{ 'favIcon': !checkForFavs(pokemon), 'favIcon favIconCheck': checkForFavs(pokemon) }" @click="addToFav(pokemon)"></div>
           <img class="card-img-top" :src="pokemon.sprites.front_default" alt="Card image cap">
           <div class="card-body">
             <h5 class="card-title">{{ pokemon.name }}</h5>
@@ -40,83 +41,93 @@ export default {
         fav: false,
         favPokemons: [],
         checkFavs: null,
+        team: [],
       };
     },
     methods: {  
-    fetchData() {
-      fetch('https://pokeapi.co/api/v2/pokemon/?limit=151')
-        .then(response => response.json())
-        .then(data => {
-          const pokemonPromises = data.results.map(pokemon => {
-            return fetch(pokemon.url)
-              .then(response => response.json());
-          });
-          // Promise para iterar sobre todos los datos
-          Promise.all(pokemonPromises)
-            .then(pokemonDataArray => {
-              this.pokemons = pokemonDataArray;
+      fetchData() {
+        fetch('https://pokeapi.co/api/v2/pokemon/?limit=151')
+          .then(response => response.json())
+          .then(data => {
+            const pokemonPromises = data.results.map(pokemon => {
+              return fetch(pokemon.url)
+                .then(response => response.json());
             });
-        });
-    },
-    checkForFavs(pokemon) {
-      for (const i of this.favPokemons) {
-        if (pokemon.name === i.name) {
-            // this.checkFavs = true
-            return true;
-        } else {
-          this.checkFavs = false
+            // Promise para iterar sobre todos los datos
+            Promise.all(pokemonPromises)
+              .then(pokemonDataArray => {
+                this.pokemons = pokemonDataArray;
+              });
+          });
+      },
+      checkForFavs(pokemon) {
+        for (const i of this.favPokemons) {
+          if (pokemon.name === i.name) {
+              // this.checkFavs = true
+              return true;
+          } else {
+            this.checkFavs = false
+          }
         }
-      }
-      return this.checkFavs
+        return this.checkFavs
+      },
+      addToFav(pokemon) {
+        // Remover el pokemon si ya existe en favPokemons
+        let index = this.favPokemons.findIndex(p => p.name === pokemon.name);
+        if (index !== -1) {
+          this.favPokemons.splice(index, 1);
+        }
+        // Agregar el pokemon a favPokemons y aplicar la clase 'favIconCheck' al icono
+        this.favPokemons.push(pokemon);
+        let favIcon = document.querySelector('.fav Icon[data-id="' + pokemon.id + '"]');
+        if (favIcon) {
+          favIcon.classList.add('favIconCheck');
+        }
+      },
+      addToTeam(pokemon) {
+        this.team.push(pokemon)
+        let teamIcon = document.querySelector('.addTeamIcon Icon[data-id="' + pokemon.id + '"]');
+        console.log('hola');
+        if (teamIcon) {
+          teamIcon.classList.add('teamIconCheck');
+        }
+        
+      },
+      displayFavs() {
+        this.fav = true
+      },
+      displayAll() {
+        this.fav = false
+      },
+      displayTeam() {
+        this.fav = false
+      },
+      getPokemonClasses(pokemon) {
+      const types = pokemon.types.map(type => type.type.name);
+      return {
+        'fire card': types.includes('fire'),
+        'aqua card': types.includes('water'),
+        'grass card': types.includes('grass'),
+        'poison card': types.includes('poison'),
+        'electric card': types.includes('electric'),
+        'ground card': types.includes('ground'),
+        'psychic card': types.includes('psychic'),
+        'dragon card': types.includes('dragon'),
+        'normal card': types.includes('normal'),
+        'bug card': types.includes('bug'),
+        'fairy card': types.includes('fairy'),
+        'fighting card': types.includes('fighting'),
+        'fly card': types.includes('flying')
+      };
     },
-    addToFav(pokemon) {
-      // Remover el pokemon si ya existe en favPokemons
-      let index = this.favPokemons.findIndex(p => p.name === pokemon.name);
-      if (index !== -1) {
-        this.favPokemons.splice(index, 1);
-      }
-      // Agregar el pokemon a favPokemons y aplicar la clase 'favIconCheck' al icono
-      this.favPokemons.push(pokemon);
-      let favIcon = document.querySelector('.fav Icon[data-id="' + pokemon.id + '"]');
-      if (favIcon) {
-        favIcon.classList.add('favIconCheck');
-      }
-    },
-    displayFavs() {
-      this.fav = true
-    },
-    displayAll() {
-      this.fav = false
-    },
-    displayTeam() {
-      this.fav = false
-    },
-    getPokemonClasses(pokemon) {
-    const types = pokemon.types.map(type => type.type.name);
-    return {
-      'fire card': types.includes('fire'),
-      'aqua card': types.includes('water'),
-      'grass card': types.includes('grass'),
-      'poison card': types.includes('poison'),
-      'electric card': types.includes('electric'),
-      'ground card': types.includes('ground'),
-      'psychic card': types.includes('psychic'),
-      'dragon card': types.includes('dragon'),
-      'normal card': types.includes('normal'),
-      'bug card': types.includes('bug'),
-      'fairy card': types.includes('fairy'),
-      'fighting card': types.includes('fighting'),
-      'fly card': types.includes('flying')
-    };
-  },
-  getPokemonTypes(pokemon) {
-    return pokemon.types.map(type => type.type.name).join(', ');
-  }
+    getPokemonTypes(pokemon) {
+      return pokemon.types.map(type => type.type.name).join(', ');
+    }
     },
     mounted() {
       this.fetchData();
     },
-  };
+};
 
 </script>
 <style >
@@ -131,16 +142,32 @@ export default {
     .favIconCheck {
       background-color: yellow !important;
     }
-    .favIcon {
-      right: 14px;
-      position: absolute;
-      background-color: grey;
-      border-radius: 100%;
+    .images {
       width: 30px;
-      height: 30px;
+    }
+    .icons {
+      background-color: grey;
+      position: absolute;
+      border-radius: 100%;
+      width: 34px;
+      height: 36px;
       transition: 0.5s;
     }
-    .favIcon:hover {
+    .favIcon {
+      right: 14px !important;
+    }
+    .addTeamIcon {
+      background-color: unset;
+      width: 42px;
+      background-repeat: no-repeat;
+      background-size: 37px;
+      background-image: url('../assets/addToTeam.svg');
+      left: 14px !important;
+    }
+    .teamIconCheck {
+      background-image: url('../assets/team.png') !important;
+    }
+    .favIcon:hover, .addTeamIcon:hover {
       cursor: pointer;
       transform: scale(1.05);
     }
