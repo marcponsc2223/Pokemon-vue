@@ -5,66 +5,27 @@
       <!-- class="card" -->
       <div class="favButtonSearch"><button type="button" class="btn btn-primary" @click="displayFavs()">Search for Favs</button></div>
       <div class="allButtonSearch"><button type="button" class="btn btn-primary" @click="displayAll()">Search for All</button></div>
+      <div class="teamButtonSearch"><button type="button" class="btn btn-primary" @click="displayTeam()">Search for team</button></div>
       <div v-if="!fav ||favPokemons.length <= 0" class="cards">
-        <div v-for="pokemon in this.pokemons" :key="pokemon.name" :class="
-          {
-          'fire card': isFire(pokemon), 
-          'aqua card': isAqua(pokemon), 
-          'grass card': isGrass(pokemon), 
-          'poison card': isPoison(pokemon), 
-          'electric card': isElectric(pokemon), 
-          'ground card': isGround(pokemon), 
-          'psychic card': isPsychic(pokemon),
-          'dragon card': isDragon(pokemon),
-          'normal card': isNormal(pokemon),
-          'bug card': isBug(pokemon),
-          'fairy card': isFairy(pokemon),  
-          'fighting card': isFight(pokemon),
-          'fly card': isFly(pokemon)  
-          }" 
-          style="width: 18rem;" >
-          <h5 class="card-title">Id: {{pokemon.id}}</h5>
-          <div :class="
-          {
-            'favIcon': !checkForFavs(pokemon),
-            'favIcon favIconCheck': checkForFavs(pokemon)
-
-          }" 
-          @click="addToFav(pokemon)"></div>
-          <img class="card-img-top" :src="pokemon.sprites.front_default" alt="Card image cap" >
-            <div class="card-body">
-              <h5 class="card-title">{{pokemon.name}}</h5>
-              <p >Types: {{pokemon.types.map(type => type.type.name)}}</p>
-              <!-- <p class="card-text">{{}}</p> -->
-            </div>
+        <div v-for="pokemon in pokemons" :key="pokemon.name" :class="getPokemonClasses(pokemon)" style="width: 18rem;">
+          <h5 class="card-title">Id: {{ pokemon.id }}</h5>
+          <div :class="{ 'favIcon': !checkForFavs(pokemon), 'favIcon favIconCheck': checkForFavs(pokemon) }" @click="addToFav(pokemon)"></div>
+          <img class="card-img-top" :src="pokemon.sprites.front_default" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">{{ pokemon.name }}</h5>
+            <p>Types: {{ getPokemonTypes(pokemon) }}</p>
+          </div>
         </div>
       </div>
       <div v-else class="cards">
-        <div v-for="pokemon in this.favPokemons" :key="pokemon.name" :class="
-          {
-          'fire card': isFire(pokemon), 
-          'aqua card': isAqua(pokemon), 
-          'grass card': isGrass(pokemon), 
-          'poison card': isPoison(pokemon), 
-          'electric card': isElectric(pokemon), 
-          'ground card': isGround(pokemon), 
-          'psychic card': isPsychic(pokemon),
-          'dragon card': isDragon(pokemon),
-          'normal card': isNormal(pokemon),
-          'bug card': isBug(pokemon),
-          'fairy card': isFairy(pokemon),  
-          'fighting card': isFight(pokemon),
-          'fly card': isFly(pokemon)  
-          }" 
-          style="width: 18rem;" >
-          <h5 class="card-title">Id: {{pokemon.id}}</h5>
-          <div class="favIcon favIconCheck"></div>
-          <img class="card-img-top" :src="pokemon.sprites.front_default" alt="Card image cap" >
-            <div class="card-body">
-              <h5 class="card-title">{{pokemon.name}}</h5>
-              <p >Types: {{pokemon.types.map(type => type.type.name)}}</p>
-              <!-- <p class="card-text">{{}}</p> -->
-            </div>
+        <div v-for="pokemon in this.favPokemons" :key="pokemon.name" :class="getPokemonClasses(pokemon)" style="width: 18rem;">
+          <h5 class="card-title">Id: {{ pokemon.id }}</h5>
+          <div :class="{ 'favIcon': !checkForFavs(pokemon), 'favIcon favIconCheck': checkForFavs(pokemon) }" @click="addToFav(pokemon)"></div>
+          <img class="card-img-top" :src="pokemon.sprites.front_default" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">{{ pokemon.name }}</h5>
+            <p>Types: {{ getPokemonTypes(pokemon) }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -127,46 +88,30 @@ export default {
     displayAll() {
       this.fav = false
     },
-    isFire(pokemon) {
-      // El metodo some es para verificar si al menos un elemento cumple con la condicion.
-      return pokemon.types.some(type => type.type.name === 'fire')
+    displayTeam() {
+      this.fav = false
     },
-    isAqua(pokemon) {
-      return pokemon.types.some(type => type.type.name === 'water')
-    },
-    isGrass(pokemon) {
-      return pokemon.types.some(type => type.type.name === 'grass')
-    },
-    isPoison(pokemon) {
-      return pokemon.types.some(type => type.type.name === 'poison')
-    },
-    isElectric(pokemon) {
-      return pokemon.types.some(type => type.type.name === 'electric')
-    },
-    isGround(pokemon) {
-      return pokemon.types.some(type => type.type.name === 'ground')
-    },
-    isPsychic(pokemon) {
-      return pokemon.types.some(type => type.type.name === 'psychic')
-    },
-    isDragon(pokemon) {
-      return pokemon.types.some(type => type.type.name === 'dragon')
-    },
-    isNormal(pokemon) {
-      return pokemon.types.some(type => type.type.name === 'normal')
-    },
-    isBug(pokemon) {
-      return pokemon.types.some(type => type.type.name === 'bug')
-    },
-    isFairy(pokemon) {
-      return pokemon.types.some(type => type.type.name === 'fairy')
-    },
-    isFly(pokemon) {
-      return pokemon.types.some(type => type.type.name === 'flying')
-    },
-    isFight(pokemon) {
-      return pokemon.types.some(type => type.type.name === 'fighting')
-    },
+    getPokemonClasses(pokemon) {
+    const types = pokemon.types.map(type => type.type.name);
+    return {
+      'fire card': types.includes('fire'),
+      'aqua card': types.includes('water'),
+      'grass card': types.includes('grass'),
+      'poison card': types.includes('poison'),
+      'electric card': types.includes('electric'),
+      'ground card': types.includes('ground'),
+      'psychic card': types.includes('psychic'),
+      'dragon card': types.includes('dragon'),
+      'normal card': types.includes('normal'),
+      'bug card': types.includes('bug'),
+      'fairy card': types.includes('fairy'),
+      'fighting card': types.includes('fighting'),
+      'fly card': types.includes('flying')
+    };
+  },
+  getPokemonTypes(pokemon) {
+    return pokemon.types.map(type => type.type.name).join(', ');
+  }
     },
     mounted() {
       this.fetchData();
@@ -199,15 +144,19 @@ export default {
       cursor: pointer;
       transform: scale(1.05);
     }
-    .favButtonSearch {
-      left: 80px;
+    .favButtonSearch, .allButtonSearch, .teamButtonSearch {
       top: 200px;
       position: absolute;
     }
+    .favButtonSearch {
+      left: 80px;
+    }
     .allButtonSearch {
       right: 80px;
-      top: 200px;
-      position: absolute;
+    }
+    .teamButtonSearch {
+      right: 310px;
+
     }
     .grass {
       background-color: #a2dba2;

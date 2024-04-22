@@ -1,10 +1,22 @@
 {
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.5.2",
     "bootstrap": "^5.3.3",
-    "bootstrap-icons": "^1.11.3"
+    "bootstrap-icons": "^1.11.3",
+    "vue": "^3.4.21"
   },
-  "scripts": {
-    "serve": "vue-cli-service serve"
-  }
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vite": "^5.2.9"
+  },
+  "plugins": [
+    "@babel/plugin-transform-nullish-coalescing-operator",
+    "@babel/plugin-transform-class-properties",
+    "@babel/plugin-transform-optional-chaining"
+  ]
 }
