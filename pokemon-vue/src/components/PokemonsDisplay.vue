@@ -6,11 +6,12 @@
       <div class="favButtonSearch"><button type="button" class="btn btn-primary" @click="displayFavs()">Search for Favs</button></div>
       <div class="allButtonSearch"><button type="button" class="btn btn-primary" @click="displayAll()">Search for All</button></div>
       <div class="teamButtonSearch"><button type="button" class="btn btn-primary" @click="displayTeam()">Search for team</button></div>
-      <div v-if="!fav ||favPokemons.length <= 0" class="cards">
+      <div v-if="(!fav ||favPokemons.length <= 0) && !teamSelect" class="cards">
         <div v-for="pokemon in pokemons" :key="pokemon.name" :class="getPokemonClasses(pokemon)" style="width: 18rem;">
-          <h5 class="card-title">Id: {{ pokemon.id }}</h5>
+          <h5 class="card-title showId" data-id="{{pokemon.id}}">Number:{{ pokemon.id }}</h5>
           <div :class="{ 'favIcon icons': !checkForFavs(pokemon), 'favIcon favIconCheck icons': checkForFavs(pokemon) }" @click="addToFav(pokemon)"> <img class="images" src="../assets/lockIcon.png" alt="" srcset=""> </div>
-          <div class="icons addTeamIcon" @click="addToTeam(pokemon)"></div>
+          <!-- class="icons addTeamIcon"  -->
+          <div :class="{ 'addTeamIcon icons': !checkForTeam(pokemon), 'addTeamIcon teamIconCheck icons': checkForTeam(pokemon) }" @click="addToTeam(pokemon)"></div>
           <!-- <p>Add to team 1</p> -->
           <img class="card-img-top" :src="pokemon.sprites.front_default" alt="Card image cap">
           <div class="card-body">
@@ -19,9 +20,19 @@
           </div>
         </div>
       </div>
-      <div v-else class="cards">
+      <div v-else-if="(fav && favPokemons.length > 0) && !teamSelect" class="cards">
         <div v-for="pokemon in this.favPokemons" :key="pokemon.name" :class="getPokemonClasses(pokemon)" style="width: 18rem;">
           <h5 class="card-title">Id: {{ pokemon.id }}</h5>
+          <img class="card-img-top" :src="pokemon.sprites.front_default" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">{{ pokemon.name }}</h5>
+            <p>Types: {{ getPokemonTypes(pokemon) }}</p>
+          </div>
+        </div>
+      </div>
+      <div v-else-if="(teamSelect && team.length > 0) && !fav" class="cards">
+        <div v-for="pokemon in this.team" :key="pokemon.name" :class="getPokemonClasses(pokemon)" style="width: 18rem;">
+          <h5 class="card-title" >Id: {{ pokemon.id }}</h5>
           <img class="card-img-top" :src="pokemon.sprites.front_default" alt="Card image cap">
           <div class="card-body">
             <h5 class="card-title">{{ pokemon.name }}</h5>
@@ -42,6 +53,7 @@ export default {
         favPokemons: [],
         checkFavs: null,
         team: [],
+        teamSelect: false,
       };
     },
     methods: {  
@@ -71,36 +83,47 @@ export default {
         }
         return this.checkFavs
       },
+      checkForTeam(pokemon) {
+        for (const o of this.team) {
+          if (pokemon.name === o.name) {
+              // this.checkFavs = true
+              return true;
+          } else {
+            this.teamSelect = false
+          }
+        }
+        return this.teamSelect
+      },
       addToFav(pokemon) {
         // Remover el pokemon si ya existe en favPokemons
+          // Agregar el pokemon a favPokemons y aplicar la clase 'favIconCheck' al icono
         let index = this.favPokemons.findIndex(p => p.name === pokemon.name);
-        if (index !== -1) {
-          this.favPokemons.splice(index, 1);
-        }
-        // Agregar el pokemon a favPokemons y aplicar la clase 'favIconCheck' al icono
-        this.favPokemons.push(pokemon);
+        if (index !== -1) this.favPokemons.splice(index, 1);
+        else this.favPokemons.push(pokemon);
         let favIcon = document.querySelector('.fav Icon[data-id="' + pokemon.id + '"]');
         if (favIcon) {
           favIcon.classList.add('favIconCheck');
         }
       },
       addToTeam(pokemon) {
-        this.team.push(pokemon)
+        let index = this.team.findIndex(p => p.name === pokemon.name);
+        if (index !== -1) this.team.splice(index, 1);
+        else this.team.push(pokemon)
+
         let teamIcon = document.querySelector('.addTeamIcon Icon[data-id="' + pokemon.id + '"]');
-        console.log('hola');
-        if (teamIcon) {
-          teamIcon.classList.add('teamIconCheck');
-        }
-        
+        if (teamIcon)teamIcon.classList.add('teamIconCheck'); 
       },
       displayFavs() {
         this.fav = true
+        this.teamSelect = false
       },
       displayAll() {
         this.fav = false
+        this.teamSelect = false
       },
       displayTeam() {
         this.fav = false
+        this.teamSelect = true
       },
       getPokemonClasses(pokemon) {
       const types = pokemon.types.map(type => type.type.name);
@@ -117,6 +140,7 @@ export default {
         'bug card': types.includes('bug'),
         'fairy card': types.includes('fairy'),
         'fighting card': types.includes('fighting'),
+        'aleix card': types.includes('hotdog'),
         'fly card': types.includes('flying')
       };
     },
