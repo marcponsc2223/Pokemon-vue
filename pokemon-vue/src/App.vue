@@ -1,5 +1,5 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
+  <img alt="Vue logo" src="./assets/pokedexLogo.png">
   <!-- <HelloWorld msg="Welcome to Your Vue.js App"/> -->
   <PokemonsDisplay>Hola</PokemonsDisplay>
 </template>
@@ -10,13 +10,14 @@ import PokemonsDisplay from './components/PokemonsDisplay.vue';
 export default {
   name: 'App',
   components: {
-    PokemonsDisplay
+    PokemonsDisplay,
   }
 }
 </script>
 
 <style>
 #app {
+  background-color: #FAFCF4;
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
