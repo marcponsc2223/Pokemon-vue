@@ -1,33 +1,56 @@
 <template>
     <div id="application">
-        <!-- <div class="slider-container">
-          <input type="range" v-model="sliderValue" min="0" max="100" class="slider">
-          <p>Valor mínimo: <span>{{ sliderValue }}</span></p>
-          <p>Valor máximo: <span>{{ 100 - sliderValue }}</span></p>
-        </div> -->
-
         <input type="range" v-model="minValue" :min="0" :max="100"  class="slider">
         <input type="range" v-model="maxValue" :min="0" :max="100" class="slider">
         <p>Valor mínimo: <span>{{ minValue }}</span></p>
         <p>Valor máximo: <span>{{ maxValue }}</span></p>
-        <div class=""><button type="button" class="btn btn-primary" >Search for Range</button></div>
+        <div><button type="submit" class="btn btn-primary" id="searchForRangeButton" @click="showPokemons()">Search for Range</button></div>
     </div>
+    <div class="cards">
+      <div v-for="pokemon in this.choosedRange" :key="pokemon.name" :class="this.$parent.getPokemonClasses(pokemon)" style="width: 18rem;">
+        <h5 class="card-title showId" data-id="{{pokemon.id}}">Number:{{ pokemon.id }}</h5>
+        <div :class="{ 'favIcon icons': !this.$parent.checkForFavs(pokemon), 'favIcon favIconCheck icons': this.$parent.checkForFavs(pokemon) }"
+          @click="this.$parent.addToFav(pokemon)"> <img class="images" src="../assets/lockIcon.png" alt="" srcset=""> </div>
+        <div
+          :class="{ 'addTeamIcon icons': !this.$parent.checkForTeam(pokemon), 'addTeamIcon teamIconCheck icons': this.$parent.checkForTeam(pokemon) }"
+          @click="this.$parent.addToTeam(pokemon)" />
+        <img class="card-img-top" :src="pokemon.sprites.front_default" alt="Card image cap">
+        <div class="card-body">
+          <h5 class="card-title">{{ pokemon.name }}</h5>
+          <p>Types: {{ this.$parent.getPokemonTypes(pokemon) }}</p>
+        </div>
+      </div>
+    </div>
+    
 </template>
 <script>
-// import Vue from 'vue';
-export default({
-    el: '#application',
+export default{
+    // el: '#application',
     data() {
         return {
             minValue: 50,
             maxValue: 100,
-            // sliderValue: 50,
+            pokemons: [],
+            choosedRange: [],
+            div: {},
+        }
+    }, 
+    methods: {
+        showPokemons() {
+          let divApp = document.getElementById('application')
+          divApp.style.display = 'none'
+          this.div = divApp
+          this.pokemons = this.$parent.pokemons
+          this.choosedRange = this.pokemons.filter(pokemon =>
+            pokemon.id <= this.maxValue && pokemon.id >= this.minValue
+          )
         }
     }
-});
+}
 </script>
 <style>
   #application {
+    display: block;
     z-index: 999;
     border-radius: 20px;
     padding: 14px;

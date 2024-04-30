@@ -2,9 +2,6 @@
   <div>
     <div v-if="!pokemons">Loading Pokemons...</div>
     <div v-else>
-      <div v-if="getPokByRange">
-        <SliderRange></SliderRange>
-      </div>
       <div class="favButtonSearch"><button type="button" class="btn btn-primary" @click="displayFavs()">Search for Favs
         </button></div>
       <div class="allButtonSearch"><button type="button" class="btn btn-primary" @click="displayAll()">Search for
@@ -23,9 +20,15 @@
           <a class="dropdown-item" @click="displayTypes('flying')">Flying</a>
         </div>
       </div>
-      <div class="rangeButtonSearch"><button type="button" class="btn btn-primary" @click="openSlideRange()">Search for Range</button>
+      <div class="rangeButtonSearch"><button type="button" class="btn btn-primary" @click="openSlideRange()">Search for Range</button></div>
+      <div class="invButtonSearch"><button type="button" class="btn btn-primary" @click="openInventory()" >Show Inventary</button></div>
+      <div v-if="getPokByRange">
+        <SliderRange ref="SliderRange"></SliderRange>
       </div>
-      <div v-if="!fav && !teamSelect && !type" class="cards">
+      <div v-if="showInv">
+        <ShowInv ref="SliderRange"></ShowInv>
+      </div>
+      <div v-if="!fav && !teamSelect && !type && !getPokByRange && !showInv" class="cards">
         <div v-for="pokemon in pokemons" :key="pokemon.name" :class="getPokemonClasses(pokemon)" style="width: 18rem;">
           <h5 class="card-title showId" data-id="{{pokemon.id}}">Number:{{ pokemon.id }}</h5>
           <div :class="{ 'favIcon icons': !checkForFavs(pokemon), 'favIcon favIconCheck icons': checkForFavs(pokemon) }"
@@ -40,7 +43,7 @@
           </div>
         </div>
       </div>
-      <div v-else-if="(fav && favPokemons.length > 0) && !teamSelect" class="cards">
+      <div v-else-if="(fav && favPokemons.length > 0)" class="cards">
         <div v-for="pokemon in this.favPokemons" :key="pokemon.name" :class="getPokemonClasses(pokemon)"
           style="width: 18rem;">
           <div :class="{ 'favIcon icons': !checkForFavs(pokemon), 'favIcon favIconCheck icons': checkForFavs(pokemon) }"
@@ -53,8 +56,7 @@
           </div>
         </div>
       </div>
-      <!-- && !fav -->
-      <div v-else-if="(teamSelect && team.length > 0) && !fav" class="cards">
+      <div v-else-if="(teamSelect && team.length > 0)" class="cards">
         <div v-for="pokemon in this.team" :key="pokemon.name" :class="getPokemonClasses(pokemon)" style="width: 18rem;">
           <h5 class="card-title">Number: {{ pokemon.id }}</h5>
           <img class="card-img-top" :src="pokemon.sprites.front_default" alt="Card image cap">
@@ -64,8 +66,8 @@
           </div>
         </div>
       </div>
-      <div v-else-if="type && !fav && !teamSelect" class="cards">
-        <div v-for="pokemon in this.typeSelect" :key="pokemon.name" :class="getPokemonClasses(pokemon)"
+      <div v-else-if="type" class="cards">
+        <div v-for="pokemon in this.choosedType" :key="pokemon.name" :class="getPokemonClasses(pokemon)"
           style="width: 18rem;">
           <div :class="{ 'favIcon icons': !checkForFavs(pokemon), 'favIcon favIconCheck icons': checkForFavs(pokemon) }"
             @click="addToFav(pokemon)"> <img class="images" src="../assets/lockIcon.png" alt="" srcset=""> </div>
@@ -97,9 +99,11 @@
 </template>
 <script>
 import SliderRange from './SliderRange.vue';
+import ShowInv from './ShowInventory.vue';
 export default {
   components: {
-    SliderRange
+    SliderRange,
+    ShowInv,
   },
   data() {
     return {
@@ -114,6 +118,7 @@ export default {
       choosedType: [],
       type: false,
       getPokByRange: false,
+      showInv: false,
     };
   },
   methods: {
@@ -160,10 +165,10 @@ export default {
       if (index !== -1) this.favPokemons.splice(index, 1);
       else this.favPokemons.push(pokemon);
       
-      for (let i = 0; i < this.favPokemons.length; i++) {
-        console.log(this.favPokemons[i]);
+      // for (let i = 0; i < this.favPokemons.length; i++) {
+      //   console.log(this.favPokemons[i]);
         
-      }
+      // }
 
       let favIcon = document.querySelector('.fav Icon[data-id="' + pokemon.id + '"]');
       if (favIcon) {
@@ -186,7 +191,15 @@ export default {
       let teamIcon = document.querySelector('.addTeamIcon Icon[data-id="' + pokemon.id + '"]');
       if (teamIcon) teamIcon.classList.add('teamIconCheck');
     },
+    openInventory() {
+      this.resetDisplayFlags();
+      this.showInv = true
+    },
     openSlideRange() {
+      if (this.$refs.SliderRange) {
+        let div = this.$refs.SliderRange.div
+        div.style.display = 'block'
+      }
       this.resetDisplayFlags();
       this.getPokByRange = true;
     },
@@ -211,7 +224,7 @@ export default {
       );
     },
     resetDisplayFlags() {
-      this.fav = this.teamSelect = this.type = this.getPokByRange = false;
+      this.fav = this.teamSelect = this.type = this.getPokByRange = this.showInv = false;
     },
     getPokemonClasses(pokemon) {
       const types = pokemon.types.map(type => type.type.name);
@@ -238,6 +251,7 @@ export default {
   },
   mounted() {
     this.fetchData();
+
   },
 };
 
@@ -330,12 +344,15 @@ export default {
 .favButtonSearch,
 .allButtonSearch,
 .teamButtonSearch,
-.rangeButtonSearch {
+.rangeButtonSearch,
+.invButtonSearch {
   top: 200px;
   position: absolute;
   z-index: 100;
 }
-
+.invButtonSearch {
+  right: 510px;
+}
 .favButtonSearch {
   left: 80px;
 }
