@@ -10,7 +10,7 @@
         <input type="range" v-model="maxValue" :min="0" :max="100" class="slider">
         <p>Valor mínimo: <span>{{ minValue }}</span></p>
         <p>Valor máximo: <span>{{ maxValue }}</span></p>
-  
+        <div class=""><button type="button" class="btn btn-primary" >Search for Range</button></div>
     </div>
 </template>
 <script>
@@ -27,14 +27,25 @@ export default({
 });
 </script>
 <style>
+  #application {
+    z-index: 999;
+    border-radius: 20px;
+    padding: 14px;
+    left: 250px;
+    color: white;
+    top: 220px;
+    position: absolute;
+    background-color: #000000d9;
+  }
   .slider-container {
     width: 80%;
     margin: 50px auto;
   }
 
   .slider {
+    margin-right: 10px;
     -webkit-appearance: none;
-    width: 100%;
+    width: 43%;
     height: 15px;
     border-radius: 5px;
     background: #d3d3d3;
