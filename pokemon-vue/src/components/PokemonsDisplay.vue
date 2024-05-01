@@ -196,7 +196,7 @@ export default {
       this.showInv = true
     },
     openSlideRange() {
-      if (this.$refs.SliderRange) {
+      if (this.$refs.SliderRange && !this.showInv) {
         let div = this.$refs.SliderRange.div
         div.style.display = 'block'
       }
