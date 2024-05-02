@@ -1,10 +1,10 @@
 <template>
     <div id="application">
-        <input type="range" v-model="minValue" :min="0" :max="100"  class="slider">
-        <input type="range" v-model="maxValue" :min="0" :max="100" class="slider">
-        <p>Valor mínimo: <span>{{ minValue }}</span></p>
-        <p>Valor máximo: <span>{{ maxValue }}</span></p>
-        <div><button type="submit" class="btn btn-primary" id="searchForRangeButton" @click="showPokemons()">Search for Range</button></div>
+        <input type="range" v-model="minValue" :min="0" :max="maxValue"  class="slider">
+        <input type="range" v-model="maxValue" :min="minValue" :max="100" class="slider">
+        <p id="minValue">Min Value: <span>{{ minValue }}</span></p>
+        <p id="maxValue">Max Value: <span>{{ maxValue }}</span></p>
+        <div><button type="submit" class="btn btn-primary rangeSearch" id="searchForRangeButton" @click="showPokemons()">Search</button></div>
     </div>
     <div class="cards">
       <div v-for="pokemon in this.choosedRange" :key="pokemon.name" :class="this.$parent.getPokemonClasses(pokemon)" style="width: 18rem;">
@@ -25,10 +25,9 @@
 </template>
 <script>
 export default{
-    // el: '#application',
     data() {
         return {
-            minValue: 50,
+            minValue: 0,
             maxValue: 100,
             pokemons: [],
             choosedRange: [],
@@ -59,6 +58,20 @@ export default{
     top: 220px;
     position: absolute;
     background-color: #000000d9;
+  }
+  .rangeSearch {
+    z-index: 200;
+  }
+  #minValue, #maxValue {
+    margin: 0;
+  }
+  #minValue {
+    left: 39px;
+    position: absolute;
+  }
+  #maxValue {
+    left: 60px;
+    position: relative;
   }
   .slider-container {
     width: 80%;

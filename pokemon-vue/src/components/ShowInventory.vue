@@ -11,21 +11,24 @@
             <img class="card-img-top" :src="item.sprites.default" alt="Card image cap">
             <div class="card-body">
                 <h5 class="card-title">{{ item.name.replace("-", " ") }} </h5>
-                <!-- <p>Amount: {{item.numPokeballs}} </p> -->
-                <!-- <p>Types: {{ getPokemonTypes(pokemon) }}</p> -->
+                <AddItems @amountGestion="inventoryGestion($event, item)"></AddItems>
             </div>
         </div>
     </div>
 </template>
 <script>
+import AddItems from './AddAmountItems.vue'
 export default{
-    // el: '#application',
+    components: {
+    AddItems,
+    },
     data() {
         return {
           items: [],
           numMaxPokeballs: 15,
           numMaxPoc: 5,
-          potions: ['potion', 'antidote', 'burn-heal', 'ice-heal']
+          potions: ['potion', 'antidote', 'burn-heal', 'ice-heal'],
+          childData: {},
         }
     },
     methods: {
@@ -49,6 +52,16 @@ export default{
         },
         randomNumber(number) {
             return Math.floor(Math.random() * number)
+        },
+        inventoryGestion(addingItem, item) {
+            let potiAdd = false
+            this.potions.forEach(poti => {
+                if ((item.name === poti ) ) potiAdd = true
+            });
+            console.log(potiAdd);
+            if (potiAdd && item.numPokeballs < this.numMaxPoc && (addingItem)) item.numPokeballs++
+            else if(!potiAdd && item.numPokeballs < this.numMaxPokeballs && (addingItem)) item.numPokeballs++
+            else if (item.numPokeballs > 0 && (!addingItem) ) {item.numPokeballs--; console.log('quitame');}
         },
     },
     mounted() {

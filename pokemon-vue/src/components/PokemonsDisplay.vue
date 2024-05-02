@@ -2,26 +2,22 @@
   <div>
     <div v-if="!pokemons">Loading Pokemons...</div>
     <div v-else>
-      <div class="favButtonSearch"><button type="button" class="btn btn-primary" @click="displayFavs()">Search for Favs
-        </button></div>
-      <div class="allButtonSearch"><button type="button" class="btn btn-primary" @click="displayAll()">Search for
-          All</button></div>
-      <div class="teamButtonSearch"><button type="button" class="btn btn-primary" @click="displayTeam()">Search for
-          team</button></div>
+      <div class="button-container">
+            <button class="btn btn-primary" @click="displayFavs()">Search for Favs</button>
+            <button class="btn btn-primary" @click="displayAll()">Search for All</button>
+            <button class="btn btn-primary" @click="displayTeam()">Search for Team</button>
+            <button class="btn btn-primary" @click="openSlideRange()">Search for Range</button>
+            <button class="btn btn-primary"  @click="openInventory()">Show Inventory</button>
       <div class="dropdown">
         <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
           aria-haspopup="true" aria-expanded="false">
           Types Select
         </button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <a class="dropdown-item" @click="displayTypes('fire')">Fire</a>
-          <a class="dropdown-item" @click="displayTypes('water')">Water</a>
-          <a class="dropdown-item" @click="displayTypes('grass')">Grass</a>
-          <a class="dropdown-item" @click="displayTypes('flying')">Flying</a>
+          <a class="dropdown-item" v-for="type in types" :key="type" @click="displayTypes(type)">{{ type }}</a>
         </div>
       </div>
-      <div class="rangeButtonSearch"><button type="button" class="btn btn-primary" @click="openSlideRange()">Search for Range</button></div>
-      <div class="invButtonSearch"><button type="button" class="btn btn-primary" @click="openInventory()" >Show Inventary</button></div>
+    </div>
       <div v-if="getPokByRange">
         <SliderRange ref="SliderRange"></SliderRange>
       </div>
@@ -48,6 +44,9 @@
           style="width: 18rem;">
           <div :class="{ 'favIcon icons': !checkForFavs(pokemon), 'favIcon favIconCheck icons': checkForFavs(pokemon) }"
             @click="addToFav(pokemon)"> <img class="images" src="../assets/lockIcon.png" alt="" srcset=""> </div>
+            <div
+            :class="{ 'addTeamIcon icons': !checkForTeam(pokemon), 'addTeamIcon teamIconCheck icons': checkForTeam(pokemon) }"
+            @click="addToTeam(pokemon)" />
           <h5 class="card-title">Number: {{ pokemon.id }}</h5>
           <img class="card-img-top" :src="pokemon.sprites.front_default" alt="Card image cap">
           <div class="card-body">
@@ -83,7 +82,7 @@
         </div>
       </div>
       <div v-else-if="teamSelect && team.length === 0" class="emptyTeam">
-        <h2>You haven't pokemons in your team</h2>
+        <h2>You haven't pokemons on your team</h2>
         <p>Make click in this icon to add pokemons.</p>
         <div class="addTeamIcon example"></div>
       </div>
@@ -91,8 +90,7 @@
         <h2>You haven't pokemons in favorites</h2>
         <p>Make click in this icon to add pokemons<img class="images" src="../assets/lockIcon.png" alt="" srcset=""></p>
       </div>
-      <div class="limitExceded" id="limitExceded">You can have only {{ limitPokemonsTeam }} pokemons in your team</div>
-
+      <div class="limitExceded" id="limitExceded">You have reach the limit of {{ limitPokemonsTeam }} pokemons on your team</div>
     </div>
 
   </div>
@@ -108,7 +106,7 @@ export default {
   data() {
     return {
       title: "PokemonsDisplay",
-      pokemons: [],
+      pokemons: null,
       fav: false,
       favPokemons: [],
       checkFavs: null,
@@ -119,6 +117,7 @@ export default {
       type: false,
       getPokByRange: false,
       showInv: false,
+      types: [],
     };
   },
   methods: {
@@ -126,21 +125,22 @@ export default {
       fetch('https://pokeapi.co/api/v2/pokemon/?limit=151')
         .then(response => response.json())
         .then(data => {
+         // Hacemos un mapa para iterar sobre cada pokemon, para llamar a otra api con la url con el método fetch.
           const pokemonPromises = data.results.map(pokemon => {
             return fetch(pokemon.url)
               .then(response => response.json());
           });
-          // Promise para iterar sobre todos los datos
+          // Promise para iterar sobre todos los pokemons, uno a uno, espera a que se hagan todas las llamadas a la api, y cuando este completo, ejecuta lo que esté en el .then.
           Promise.all(pokemonPromises)
             .then(pokemonDataArray => {
               this.pokemons = pokemonDataArray;
+              this.setPokemonTypesInSelect()
             });
         });
     },
     checkForFavs(pokemon) {
       for (const i of this.favPokemons) {
         if (pokemon.name === i.name) {
-          // this.checkFavs = true
           return true;
         } else {
           this.checkFavs = false
@@ -164,12 +164,6 @@ export default {
       let index = this.favPokemons.findIndex(p => p.name === pokemon.name);
       if (index !== -1) this.favPokemons.splice(index, 1);
       else this.favPokemons.push(pokemon);
-      
-      // for (let i = 0; i < this.favPokemons.length; i++) {
-      //   console.log(this.favPokemons[i]);
-        
-      // }
-
       let favIcon = document.querySelector('.fav Icon[data-id="' + pokemon.id + '"]');
       if (favIcon) {
         favIcon.classList.add('favIconCheck');
@@ -246,18 +240,34 @@ export default {
       };
     },
     getPokemonTypes(pokemon) {
+      // console.log(this.pokemons);
       return pokemon.types.map(type => type.type.name).join(', ');
+
+    },
+    setPokemonTypesInSelect() {
+      let typesSet = new Set();
+      this.pokemons.forEach(pokemon => {
+        pokemon.types.forEach(type => {
+          typesSet.add(type.type.name)
+        })
+      })
+      let typesArray = Array.from(typesSet)
+      this.types.push(...typesArray)
     }
   },
   mounted() {
     this.fetchData();
-
   },
+
 };
 
 </script>
 <style>
+.btn-primary {
+  margin: 10px !important;
+}
 .limitExceded {
+  z-index: 99999999;
   display: none;
   padding: 10px;
   color: white;
@@ -327,48 +337,21 @@ export default {
   cursor: pointer;
   transform: scale(1.05);
 }
-
+.dropdown-item {
+  cursor: pointer;
+}
 .dropdown-menu {
-  top: -139px !important;
   left: 135px !important;
 }
 
 .dropdown {
-  z-index: 0 !important;
+  z-index: 150 !important;
 }
 
 .dropdown-toggle::after {
   transform: rotate(-88deg) !important;
 }
 
-.favButtonSearch,
-.allButtonSearch,
-.teamButtonSearch,
-.rangeButtonSearch,
-.invButtonSearch {
-  top: 200px;
-  position: absolute;
-  z-index: 100;
-}
-.invButtonSearch {
-  right: 510px;
-}
-.favButtonSearch {
-  left: 80px;
-}
-
-.allButtonSearch {
-  right: 80px;
-}
-
-.teamButtonSearch {
-  right: 310px;
-
-}
-
-.rangeButtonSearch {
-  left: 310px;
-}
 .grass {
   background-color: #a2dba2;
   border: 3px solid green;
