@@ -27,7 +27,7 @@ export default{
           items: [],
           numMaxPokeballs: 15,
           numMaxPoc: 5,
-          potions: ['potion', 'antidote', 'burn-heal', 'ice-heal'],
+          potions: [],
           childData: {},
         }
     },
@@ -44,7 +44,13 @@ export default{
                     Promise.all(pokemonPromises)
                         .then(pokemonDataArray => {
                             pokemonDataArray.forEach(pokemonData => {
-                                pokemonData.numPokeballs = this.potions.includes(pokemonData.name) ? this.randomNumber(this.numMaxPoc) : this.randomNumber(this.numMaxPokeballs)
+                                // pokemonData.numPokeballs = pokemonData.name.includes('ball') ?  this.randomNumber(this.numMaxPokeballs) : this.randomNumber(this.numMaxPoc) ; this.potions.push(pokemonData.name)
+                                if (pokemonData.name.includes('ball')) {
+                                    pokemonData.numPokeballs = this.randomNumber(this.numMaxPokeballs);
+                                } else {
+                                    pokemonData.numPokeballs = this.randomNumber(this.numMaxPoc);
+                                    this.potions.push(pokemonData.name);
+                                }
                             });
                             this.items = pokemonDataArray;
                     });
@@ -58,7 +64,7 @@ export default{
             this.potions.forEach(poti => {
                 if ((item.name === poti ) ) potiAdd = true
             });
-            console.log(potiAdd);
+            console.log(this.potions);
             if (potiAdd && item.numPokeballs < this.numMaxPoc && (addingItem)) item.numPokeballs++
             else if(!potiAdd && item.numPokeballs < this.numMaxPokeballs && (addingItem)) item.numPokeballs++
             else if (item.numPokeballs > 0 && (!addingItem) ) {item.numPokeballs--; console.log('quitame');}
